@@ -1,0 +1,57 @@
+﻿{% extends "base.html" %}
+
+{% block conteudo %}
+<h2 class="mb-4">📝 Registrar Nova Pendência</h2>
+
+<form method="POST" class="row g-3">
+    <div class="col-md-6">
+        <label>Máquina</label>
+        <select name="maquina_id" class="form-control" required>
+            {% for m in maquinas %}
+                <option value="{{ m.id }}">{{ m.codigo_interno }} - {{ m.modelo }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label>Horímetro Atual</label>
+        <input type="number" step="0.1" name="horimetro" class="form-control" required>
+    </div>
+    <div class="col-md-3">
+        <label>Tipo de Pendência</label>
+        <select name="tipo_id" class="form-control" required>
+            {% for t in tipos %}
+                <option value="{{ t.id }}">{{ t.descricao }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label>Prioridade</label>
+        <select name="prioridade" class="form-control">
+            <option>Baixa</option>
+            <option>Média</option>
+            <option>Alta</option>
+            <option>Urgente</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label>Prazo Limite</label>
+        <input type="date" name="prazo" class="form-control">
+    </div>
+    <div class="col-md-4">
+        <label>Responsável</label>
+        <select name="responsavel_id" class="form-control">
+            <option value="">Selecione</option>
+            {% for u in responsaveis %}
+                <option value="{{ u.id }}">{{ u.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-12">
+        <label>Descrição Detalhada</label>
+        <textarea name="descricao" rows="3" class="form-control" required></textarea>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Registrar Pendência</button>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,70 @@
+﻿{% extends "base.html" %}
+
+{% block conteudo %}
+<h2 class="mb-4">✏️ Editar Pendência #{{ pendencia.id }}</h2>
+
+<form method="POST" class="row g-3">
+    <div class="col-md-6">
+        <label>Máquina</label>
+        <select name="maquina_id" class="form-control" required>
+            {% for m in maquinas %}
+                <option value="{{ m.id }}" {% if m.id == pendencia.maquina_id %}selected{% endif %}>
+                    {{ m.codigo_interno }} - {{ m.modelo }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label>Tipo de Pendência</label>
+        <select name="tipo_id" class="form-control" required>
+            {% for t in tipos %}
+                <option value="{{ t.id }}" {% if t.id == pendencia.tipo_id %}selected{% endif %}>
+                    {{ t.descricao }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label>Prioridade</label>
+        <select name="prioridade" class="form-control">
+            <option {% if pendencia.prioridade == 'Baixa' %}selected{% endif %}>Baixa</option>
+            <option {% if pendencia.prioridade == 'Média' %}selected{% endif %}>Média</option>
+            <option {% if pendencia.prioridade == 'Alta' %}selected{% endif %}>Alta</option>
+            <option {% if pendencia.prioridade == 'Urgente' %}selected{% endif %}>Urgente</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label>Status Atual</label>
+        <select name="status" class="form-control">
+            <option {% if pendencia.status == 'Aberta' %}selected{% endif %}>Aberta</option>
+            <option {% if pendencia.status == 'Em execução' %}selected{% endif %}>Em execução</option>
+            <option {% if pendencia.status == 'Aguardando peça' %}selected{% endif %}>Aguardando peça</option>
+            <option {% if pendencia.status == 'Aguardando aprovação' %}selected{% endif %}>Aguardando aprovação</option>
+            <option {% if pendencia.status == 'Cancelada' %}selected{% endif %}>Cancelada</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label>Prazo Limite</label>
+        <input type="date" name="prazo" class="form-control" value="{{ pendencia.prazo_limite.strftime('%Y-%m-%d') if pendencia.prazo_limite else '' }}">
+    </div>
+    <div class="col-md-4">
+        <label>Responsável</label>
+        <select name="responsavel_id" class="form-control">
+            <option value="">Selecione</option>
+            {% for u in responsaveis %}
+                <option value="{{ u.id }}" {% if u.id == pendencia.responsavel_id %}selected{% endif %}>
+                    {{ u.nome }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-12">
+        <label>Descrição Detalhada</label>
+        <textarea name="descricao" rows="3" class="form-control" required>{{ pendencia.descricao }}</textarea>
+    </div>
+    <div class="col-12 mt-3">
+        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+        <a href="/listar-pendencias" class="btn btn-secondary">Voltar</a>
+    </div>
+</form>
+{% endblock %}

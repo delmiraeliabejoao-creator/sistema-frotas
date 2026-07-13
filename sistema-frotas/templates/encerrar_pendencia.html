@@ -1,0 +1,30 @@
+﻿{% extends "base.html" %}
+
+{% block conteudo %}
+<h2 class="mb-4">✅ Encerrar Pendência #{{ pendencia.id }}</h2>
+
+<div class="alert alert-info mb-3">
+    <strong>Máquina:</strong> {{ pendencia.maquina.codigo_interno }} - {{ pendencia.maquina.modelo }}<br>
+    <strong>Problema:</strong> {{ pendencia.descricao }}<br>
+    <strong>Horímetro inicial:</strong> {{ pendencia.horimetro_abertura }} h
+</div>
+
+<form method="POST" class="row g-3">
+    <div class="col-md-4">
+        <label>Horímetro Final</label>
+        <input type="number" step="0.1" name="horimetro_final" class="form-control" required placeholder="Ex: 12500.5">
+    </div>
+    <div class="col-md-4">
+        <label>Custo Total (R$)</label>
+        <input type="number" step="0.01" name="custo" class="form-control" placeholder="Ex: 350.75">
+    </div>
+    <div class="col-12">
+        <label>Observações da Solução / Serviço Realizado</label>
+        <textarea name="observacoes" rows="4" class="form-control" required placeholder="Descreva o que foi feito, peças trocadas, ajustes..."></textarea>
+    </div>
+    <div class="col-12 mt-3">
+        <button type="submit" class="btn btn-success">Confirmar Encerramento</button>
+        <a href="/listar-pendencias" class="btn btn-secondary">Voltar</a>
+    </div>
+</form>
+{% endblock %}

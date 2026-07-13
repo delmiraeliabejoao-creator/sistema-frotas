@@ -1,0 +1,48 @@
+﻿{% extends "base.html" %}
+
+{% block conteudo %}
+<div class="card-moderno">
+    <div class="card-header-moderno">
+        <i class="bi bi-person-plus me-2"></i> Cadastrar Novo Usuário
+    </div>
+    <div class="card-body-moderno">
+        <form method="POST">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label">Nome Completo</label>
+                    <input type="text" name="nome" class="form-control-moderno w-100" placeholder="Nome completo do colaborador" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">E-mail</label>
+                    <input type="email" name="email" class="form-control-moderno w-100" placeholder="exemplo@empresa.com" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Função / Cargo</label>
+                    <input type="text" name="funcao" class="form-control-moderno w-100" placeholder="Ex: Mecânico, Almoxarife, Supervisor...">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Nível de Acesso</label>
+                    <select name="nivel" class="form-control-moderno w-100" required>
+                        <option value="">Selecione o nível</option>
+                        {% for perfil in perfis %}
+                        <option value="{{ perfil }}">{{ perfil }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Senha Inicial</label>
+                    <input type="password" name="senha" class="form-control-moderno w-100" placeholder="Defina uma senha segura" required>
+                </div>
+                <div class="col-12 mt-4">
+                    <button type="submit" class="btn btn-primary btn-moderno me-3">
+                        <i class="bi bi-save me-1"></i> Cadastrar Usuário
+                    </button>
+                    <a href="/listar-usuarios" class="btn btn-outline-secondary btn-moderno">
+                        <i class="bi bi-arrow-left me-1"></i> Voltar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

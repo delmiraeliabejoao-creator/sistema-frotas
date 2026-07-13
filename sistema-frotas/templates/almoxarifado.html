@@ -1,0 +1,112 @@
+﻿{% extends "base.html" %}
+
+{% block conteudo %}
+<div class="card-moderno">
+    <div class="card-header-moderno d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span><i class="bi bi-box-seam me-2"></i> Controle de Almoxarifado</span>
+        <span class="badge bg-primary">Total: {{ solicitacoes|length }} solicitações</span>
+    </div>
+    <div class="card-body-moderno p-0">
+        <div class="table-responsive">
+            <table class="table-moderno">
+                <thead>
+                    <tr>
+                        <th>OS Relacionada</th>
+                        <th>Frota</th>
+                        <th>Peça / Material</th>
+                        <th>Quantidade</th>
+                        <th>Data Solicitação</th>
+                        <th>Solicitante</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sol in solicitacoes %}
+                    <tr>
+                        <td><strong>{{ sol.ordem_servico.numero_os }}</strong></td>
+                        <td>
+                            {% if sol.ordem_servico.maquina.tipo_frota == "Frota Florestal" %}
+                                <span class="badge badge-florestal">Florestal</span>
+                            {% else %}
+                                <span class="badge badge-cabecote">Cabeçote</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ sol.nome_peca }}<br>
+                            <small class="text-muted">Código: {{ sol.codigo_peca or "Não informado" }}</small>
+                        </td>
+                        <td>{{ sol.quantidade }}</td>
+                        <td>{{ sol.data_solicitacao.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>{{ sol.nome_solicitante }}</td>
+                        <td>
+                            {% if sol.status == "Aguardando Peça Chegar na Base" %}
+                                <span class="badge bg-secondary">Aguardando</span>
+                            {% elif sol.status == "Em Separação" %}
+                                <span class="badge bg-primary">Em Separação</span>
+                            {% elif sol.status == "Entregue na Oficina" %}
+                                <span class="badge bg-success">Entregue</span>
+                            {% elif sol.status == "Em Falta no Estoque" %}
+                                <span class="badge bg-danger">Em Falta</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="/historico-peca/{{ sol.id }}" class="btn btn-sm btn-outline-info" title="Ver Histórico">
+                                    <i class="bi bi-clock-history"></i>
+                                </a>
+                                {% if session.nivel_acesso in ["Almoxarifado", "Supervisor Manutenção", "Gerente", "Administrador"] %}
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#statusPecaModal{{ sol.id }}" title="Atualizar Status">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+
+                            <!-- Modal Atualizar Status da Peça -->
+                            <div class="modal fade" id="statusPecaModal{{ sol.id }}" tabindex="-1" aria-labelledby="statusPecaModalLabel{{ sol.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content bg-dark border border-secondary">
+                                        <div class="modal-header border-bottom border-secondary">
+                                            <h5 class="modal-title text-light" id="statusPecaModalLabel{{ sol.id }}">Atualizar Status - {{ sol.nome_peca }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                        </div>
+                                        <form action="/atualizar-peca/{{ sol.id }}" method="POST">
+                                            <div class="modal-body text-light">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Novo Status</label>
+                                                    <select name="novo_status" class="form-control-moderno w-100" required>
+                                                        <option value="Aguardando Peça Chegar na Base" {% if sol.status == "Aguardando Peça Chegar na Base" %}selected{% endif %}>Aguardando Peça Chegar na Base</option>
+                                                        <option value="Em Separação" {% if sol.status == "Em Separação" %}selected{% endif %}>Em Separação</option>
+                                                        <option value="Entregue na Oficina" {% if sol.status == "Entregue na Oficina" %}selected{% endif %}>Entregue na Oficina</option>
+                                                        <option value="Em Falta no Estoque" {% if sol.status == "Em Falta no Estoque" %}selected{% endif %}>Em Falta no Estoque</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Observação (opcional)</label>
+                                                    <textarea name="observacao" rows="2" class="form-control-moderno w-100" placeholder="Informações adicionais..."></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-top border-secondary">
+                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-primary">Salvar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 mb-3 d-block"></i>
+                            Nenhuma solicitação de peça recebida.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
