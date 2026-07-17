@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block conteudo %}
+<div class="card-moderno">
+    <div class="card-header-moderno d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span><i class="bi bi-clipboard-data me-2"></i> Lista de Ordens de Serviço</span>
+        <span class="badge bg-primary">Total: {{ ordens|length }}</span>
+    </div>
+    <div class="card-body-moderno p-0">
+        <div class="table-responsive">
+            <table class="table-moderno">
+                <thead>
+                    <tr>
+                        <th>Número OS</th>
+                        <th>Tipo de Frota</th>
+                        <th>Equipamento</th>
+                        <th>Serviço</th>
+                        <th>Data Abertura</th>
+                        <th>Prioridade</th>
+                        <th>Status</th>
+                        <th>Fotos</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for os in ordens %}
+                    <tr>
+                        <td><strong>{{ os.numero_os }}</strong></td>
+                        <td>
+                            {% if os.maquina.tipo_frota == "Frota Florestal" %}
+                                <span class="badge badge-florestal">Florestal</span>
+                            {% else %}
+                                <span class="badge badge-cabecote">Cabeçote</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ os.maquina.codigo_interno }} - {{ os.maquina.modelo }}</td>
+                        <td>{{ os.tipo_servico.descricao }}</td>
+                        <td>{{ os.data_abertura.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            {% if os.prioridade == "Alta" %}
+                                <span class="badge bg-danger">Alta</span>
+                            {% elif os.prioridade == "Média" %}
+                                <span class="badge bg-warning">Média</span>
+                            {% else %}
+                                <span class="badge bg-info">Baixa</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if os.status == "Aguardando Serviço" %}
+                                <span class="badge bg-secondary">Aguardando</span>
+                            {% elif os.status == "Em Execução" %}
+                                <span class="badge bg-primary">Em Execução</span>
+                            {% elif os.status == "Aguardando Peça" %}
+                                <span class="badge bg-warning">Aguardando Peça</span>
+                            {% elif os.status == "Liberado com Pendência" %}
+                                <span class="badge bg-info">Liberado</span>
+                            {% elif os.status == "Concluída" %}
+                                <span class="badge bg-success">Concluída</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if os.fotos %}
+                                <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalFotos{{ os.id }}" title="Ver fotos">
+                                    <i class="bi bi-images me-1"></i> {{ os.fotos.split(',')|length }}
+                                </button>
+
+                                <!-- Modal para exibir as fotos -->
+                                <div class="modal fade" id="modalFotos{{ os.id }}" tabindex="-1" aria-labelledby="modalFotosLabel{{ os.id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                                        <div class="modal-content bg-dark border border-secondary">
+                                            <div class="modal-header border-bottom border-secondary">
+                                                <h5 class="modal-title text-light" id="modalFotosLabel{{ os.id }}">
+                                                    <i class="bi bi-images me-2"></i> Fotos - OS {{ os.numero_os }}
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                            </div>
+                                            <div class="modal-body text-center p-4">
+                                                {% set lista_fotos = os.fotos.split(',') %}
+                                                {% for foto in lista_fotos %}
+                                                    <div class="mb-4">
+                                                        <img src="{{ url_for('ver_foto', nome_arquivo=foto) }}" alt="Foto da Ordem de Serviço" class="img-fluid rounded border border-secondary" style="max-height: 500px; width: auto;">
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="/solicitar-pecas/{{ os.id }}" class="btn btn-sm btn-outline-secondary" title="Solicitar Peças">
+                                    <i class="bi bi-box-seam"></i>
+                                </a>
+                                {% if session.nivel_acesso in ["Supervisor Manutenção", "Supervisor de Operação", "Coordenador", "Gerente", "Administrador"] %}
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#statusModal{{ os.id }}" title="Alterar Status">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+
+                            <!-- Modal Alterar Status -->
+                            <div class="modal fade" id="statusModal{{ os.id }}" tabindex="-1" aria-labelledby="statusModalLabel{{ os.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content bg-dark border border-secondary">
+                                        <div class="modal-header border-bottom border-secondary">
+                                            <h5 class="modal-title text-light" id="statusModalLabel{{ os.id }}">Alterar Status - {{ os.numero_os }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                        </div>
+                                        <form action="/alterar-status/{{ os.id }}" method="POST">
+                                            <div class="modal-body text-light">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Novo Status</label>
+                                                    <select name="status" class="form-control-moderno w-100" required>
+                                                        <option value="Aguardando Serviço" {% if os.status == "Aguardando Serviço" %}selected{% endif %}>Aguardando Serviço</option>
+                                                        <option value="Em Execução" {% if os.status == "Em Execução" %}selected{% endif %}>Em Execução</option>
+                                                        <option value="Aguardando Peça" {% if os.status == "Aguardando Peça" %}selected{% endif %}>Aguardando Peça</option>
+                                                        <option value="Liberado com Pendência" {% if os.status == "Liberado com Pendência" %}selected{% endif %}>Liberado com Pendência</option>
+                                                        <option value="Concluída" {% if os.status == "Concluída" %}selected{% endif %}>Concluída</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-top border-secondary">
+                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center py-5 text-muted">
+                            <i class="bi bi-clipboard-x fs-1 mb-3 d-block"></i>
+                            Nenhuma ordem de serviço cadastrada até o momento.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
