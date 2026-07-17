@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block conteudo %}
+<div class="card-moderno">
+    <div class="card-header-moderno d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span><i class="bi bi-people me-2"></i> Gerenciar Usuários</span>
+        <a href="/cadastrar-usuario" class="btn btn-primary btn-moderno">
+            <i class="bi bi-plus-lg me-1"></i> Novo Usuário
+        </a>
+    </div>
+    <div class="card-body-moderno p-0">
+        <div class="table-responsive">
+            <table class="table-moderno">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Função</th>
+                        <th>Nível de Acesso</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td><strong>{{ usuario.nome }}</strong></td>
+                        <td>{{ usuario.email }}</td>
+                        <td>{{ usuario.funcao or "-" }}</td>
+                        <td><span class="badge badge-perfil">{{ usuario.nivel_acesso }}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#senhaModal{{ usuario.id }}" title="Alterar Senha">
+                                <i class="bi bi-key"></i>
+                            </button>
+
+                            <!-- Modal Alterar Senha -->
+                            <div class="modal fade" id="senhaModal{{ usuario.id }}" tabindex="-1" aria-labelledby="senhaModalLabel{{ usuario.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content bg-dark border border-secondary">
+                                        <div class="modal-header border-bottom border-secondary">
+                                            <h5 class="modal-title text-light" id="senhaModalLabel{{ usuario.id }}">Alterar Senha - {{ usuario.nome }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                        </div>
+                                        <form action="/alterar-senha-usuario/{{ usuario.id }}" method="POST">
+                                            <div class="modal-body text-light">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nova Senha</label>
+                                                    <input type="password" name="nova_senha" class="form-control-moderno w-100" placeholder="Digite a nova senha" required>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-top border-secondary">
+                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-primary">Salvar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="bi bi-person-x fs-1 mb-3 d-block"></i>
+                            Nenhum usuário cadastrado.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
