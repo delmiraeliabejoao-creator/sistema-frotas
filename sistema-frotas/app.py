@@ -7,7 +7,7 @@ import os
 
 app = Flask(__name__)
 app.secret_key = "chave_secreta_segura_123456"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sistema_frotas.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///banco_pendencias.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Configurações para upload de fotos
